@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>History - Health Care</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/logo.png?v=3">
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="dashboard.html" class="nav-brand">
+            <img src="assets/logo.png?v=3" alt="Logo">
+            Health Care
+        </a>
+        <ul class="nav-links">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="history.html" class="active">History</a></li>
+            <li><button class="logout-btn" onclick="logout()">Logout</button></li>
+        </ul>
+    </nav>
+    <div class="container animate-fade-in">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Device History</h1>
+            <a href="dashboard.html" class="btn"
+                style="text-decoration: none; background: var(--border); color: var(--text-main); padding: 0.5rem 1.5rem; border-radius: 2rem; font-weight: 600;">Exit
+                to Dashboard</a>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 2rem;">Device Usage Log</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>LOGIN</th>
+                        <th>EXIT</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 2rem;">
+            <h2 style="margin-bottom: 2rem;">Health Monitoring Logs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Heart Rate (BPM)</th>
+                        <th>BP (mmHg)</th>
+                        <th>Temp (°F)</th>
+                        <th>Oxygen (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="healthHistoryBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="history.js"></script>
+</body>
+
+</html>

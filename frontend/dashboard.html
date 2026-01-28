@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Health Care</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/logo.png?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="dashboard.html" class="nav-brand">
+            <img src="assets/logo.png?v=3" alt="Logo">
+            Health Care
+        </a>
+        <ul class="nav-links">
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="history.html">History</a></li>
+            <li><button class="logout-btn" onclick="logout()">Logout</button></li>
+        </ul>
+    </nav>
+
+    <div class="container animate-fade-in">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <div
+                        style="background: var(--bg-card); padding: 1.25rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.05); min-width: 250px;">
+                        <h2 id="display-name"
+                            style="font-size: 1.5rem; margin-bottom: 0.5rem; background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                            Patient</h2>
+                        <div
+                            style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                            <span>Age:</span> <span id="display-age"
+                                style="color: var(--text-main); font-weight: 600;">--</span>
+                            <span>Gender:</span> <span id="display-gender"
+                                style="color: var(--text-main); font-weight: 600;">--</span>
+                            <span>Blood Group:</span> <span id="display-blood"
+                                style="color: var(--text-main); font-weight: 600;">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 0.875rem; color: var(--text-muted);">Current Session</p>
+                <p id="current-time" style="font-weight: 600;">--:--:--</p>
+            </div>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-card heart">
+                <p class="metric-title">Heart Rate</p>
+                <span id="heart-rate" class="metric-val">0</span>
+                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">BPM</p>
+            </div>
+            <div class="metric-card bp">
+                <p class="metric-title">Blood Pressure</p>
+                <span id="blood-pressure" class="metric-val">--/--</span>
+                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">mmHg</p>
+            </div>
+            <div class="metric-card temp">
+                <p class="metric-title">Temperature</p>
+                <span id="temperature" class="metric-val">0</span>
+                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">°F</p>
+            </div>
+            <div class="metric-card ox">
+                <p class="metric-title">Oxygen Level</p>
+                <span id="oxygen" class="metric-val">0</span>
+                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">%</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 2rem; border-left: 4px solid var(--primary);">
+            <h3 style="margin-bottom: 0.5rem; color: var(--primary);">Live Status</h3>
+            <p style="font-size: 0.95rem; color: var(--text-muted);">
+                System is receiving live data from your wearable device. Abnormal readings will be highlighted in red.
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

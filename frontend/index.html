@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Health Care</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/logo.png?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="auth-wrapper">
+    <div class="auth-card animate-fade-in">
+        <div class="auth-logo">
+            <img src="assets/logo.png?v=3" alt="Health Care Logo">
+            <h1 style="font-size: 1.5rem; color: var(--text-main);">Welcome Back</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Please log in to your account
+            </p>
+        </div>
+
+        <form id="loginForm" onsubmit="event.preventDefault(); login();">
+            <div class="form-group">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" name="username" autocomplete="username"
+                    placeholder="Username or Email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" autocomplete="current-password"
+                    placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
+        </form>
+        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+            Don't have an account? <a href="signup.html" style="color: #6366f1; text-decoration: none;">Sign up</a>
+        </p>
+
+        <p id="error-message"
+            style="color: var(--error); font-size: 0.875rem; text-align: center; margin-top: 1.5rem; display: none;">
+            Invalid Username or Password!
+        </p>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+
+</html>
