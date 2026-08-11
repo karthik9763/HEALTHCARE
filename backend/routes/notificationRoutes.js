@@ -1,0 +1,36 @@
+const express = require('express');
+const router = express.Router();
+const Notification = require('../models/Notification');
+
+// Get notifications for user or admin
+router.get('/', async (req, res) => {
+    try {
+        const notifications = await Notification.find().sort({ createdAt: -1 }).limit(30);
+        res.json(notifications);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching notifications', error: err.message });
+    }
+});
+
+// Mark notification as read
+router.put('/:id/read', async (req, res) => {
+    try {
+        const notif = await Notification.findByIdAndUpdate(req.params.id, { isRead: true }, { new: true });
+        res.json(notif);
+    } catch (err) {
+        res.status(400).json({ message: 'Error marking notification read', error: err.message });
+    }
+});
+
+// Create custom notification (Admin send alert)
+router.post('/', async (req, res) => {
+    try {
+        const notification = new Notification(req.body);
+        await notification.save();
+        res.status(201).json(notification);
+    } catch (err) {
+        res.status(400).json({ message: 'Error sending notification', error: err.message });
+    }
+});
+
+module.exports = router;

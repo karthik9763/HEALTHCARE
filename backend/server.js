@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: { origin: "*", methods: ["GET", "POST"] }
+    cors: { origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }
 });
 
 app.use(cors());
@@ -22,60 +22,108 @@ app.use((req, res, next) => {
     next();
 });
 
-// 2. Global Database Guard & Settings
-mongoose.set('bufferCommands', false);
+// 2. Database Connection Logic
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/healthtracker';
+const seedData = require('./seed');
 
-app.use('/api', (req, res, next) => {
-    if (mongoose.connection.readyState !== 1 && req.path !== '/health-check') {
-        console.error(`[DB] Guard Block: Database is offline.`);
-        return res.status(503).json({
-            message: 'Database is OFFLINE. Please run START_DATABASE.bat as Administrator.'
-        });
+const connectDB = async () => {
+    try {
+        await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 2000 });
+        console.log(`[DB] Connected to MongoDB.`);
+        // Run seed on boot if database is empty
+        await seedData();
+    } catch (err) {
+        console.log(`[DB] MongoDB connection fallback active or retrying...`);
+        setTimeout(connectDB, 10000);
     }
-    next();
-});
+};
+connectDB();
 
 // 3. API Routes
-app.get('/', (req, res) => res.json({ message: "Health API is running" }));
+app.get('/', (req, res) => res.json({ message: "AI Ambulance Tracking & Emergency System API is running" }));
 
 app.get('/api/health-check', (req, res) => {
     res.json({
         status: 'ok',
-        database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+        database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected / Pending'
     });
 });
 
+// Seed endpoint for manual trigger
+app.post('/api/seed', async (req, res) => {
+    try {
+        await seedData();
+        res.json({ message: 'Seed data generated successfully!' });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to seed data', error: err.message });
+    }
+});
+
+// Mount Routes
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const ambulanceRoutes = require('./routes/ambulanceRoutes');
+const driverRoutes = require('./routes/driverRoutes');
+const hospitalRoutes = require('./routes/hospitalRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/ambulances', ambulanceRoutes);
+app.use('/api/drivers', driverRoutes);
+app.use('/api/hospitals', hospitalRoutes);
+app.use('/api/emergencies', emergencyRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/notifications', notificationRoutes);
+
+// Legacy fallback routes for compatibility
 app.use('/api', authRoutes);
 
-// 4. Data Simulation (Real-time)
+// 4. Real-time Simulation Engine (Socket.IO)
+// Simulates live moving ambulance position and live patient vitals every 3 seconds
+let simLat = 40.7145;
+let simLng = -74.0070;
+let step = 0;
+
 setInterval(() => {
-    if (mongoose.connection.readyState === 1) {
-        const data = {
-            heartRate: Math.floor(Math.random() * 40) + 60,
-            bp: `${Math.floor(Math.random() * 30 + 110)}/${Math.floor(Math.random() * 20 + 70)}`,
-            temperature: (Math.random() * 2 + 97).toFixed(1),
-            oxygen: Math.floor(Math.random() * 6) + 94,
-            timestamp: new Date()
-        };
-        io.emit('healthUpdate', data);
-    }
-}, 5000);
+    step = (step + 1) % 100;
+    simLat += (Math.random() - 0.48) * 0.0004;
+    simLng += (Math.random() - 0.48) * 0.0004;
 
-// 5. Connection Logic with Retries
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/healthtracker';
-const connectDB = () => {
-    mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 2000 })
-        .then(() => console.log(`[DB] Connected to MongoDB.`))
-        .catch(() => setTimeout(connectDB, 5000));
-};
-connectDB();
+    const liveTelemetry = {
+        ambulanceId: "AMB-101-NYC",
+        latitude: parseFloat(simLat.toFixed(5)),
+        longitude: parseFloat(simLng.toFixed(5)),
+        speed: Math.floor(Math.random() * 25) + 35, // km/h
+        heartRate: Math.floor(Math.random() * 30) + 70,
+        bloodPressure: `${Math.floor(Math.random() * 20 + 115)}/${Math.floor(Math.random() * 15 + 75)}`,
+        spO2: Math.floor(Math.random() * 4) + 96,
+        temperature: (Math.random() * 1.5 + 36.5).toFixed(1),
+        bloodSugar: Math.floor(Math.random() * 25) + 85,
+        estimatedArrival: `${Math.max(1, 8 - Math.floor(step / 15))} mins`,
+        distanceRemaining: (Math.max(0.2, 3.5 - step * 0.03)).toFixed(1),
+        timestamp: new Date()
+    };
 
-// 6. Start Server
+    io.emit('telemetryUpdate', liveTelemetry);
+    io.emit('healthUpdate', liveTelemetry);
+}, 3000);
+
+// Socket connection
+io.on('connection', (socket) => {
+    console.log(`[SOCKET] Client connected: ${socket.id}`);
+    socket.on('disconnect', () => {
+        console.log(`[SOCKET] Client disconnected: ${socket.id}`);
+    });
+});
+
+// 5. Start Server
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, '127.0.0.1', () => {
     console.log(`\n=================================================`);
-    console.log(`[SERVER] API RUNNING: http://127.0.0.1:${PORT}`);
-    console.log(`[SERVER] HEALTH PAGE: http://127.0.0.1:${PORT}/`);
+    console.log(`[SERVER] API RUNNING AT: http://127.0.0.1:${PORT}`);
+    console.log(`[SERVER] HEALTH PAGE: http://127.0.0.1:${PORT}/api/health-check`);
     console.log(`=================================================\n`);
 });

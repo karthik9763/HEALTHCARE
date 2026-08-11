@@ -1,15 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, logoutUser, getHistory, getProfile, updateProfile } = require('../controllers/authController');
-const { addHealthRecord, getHealthHistory, getLatestHealth } = require('../controllers/healthController');
-const { protect } = require('../middleware/authMiddleware');
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.post('/logout', logoutUser);
-router.get('/history', protect, getHistory);
-router.get('/profile', protect, getProfile);
-router.put('/profile', protect, updateProfile);
-router.post('/health', protect, addHealthRecord);
-router.get('/health/history', protect, getHealthHistory);
-router.get('/health/latest', protect, getLatestHealth);
+const authController = require('../controllers/authController');
+
+router.post('/register', authController.register);
+router.post('/login', authController.login);
+router.get('/me', authController.getMe);
+
 module.exports = router;
