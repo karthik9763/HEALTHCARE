@@ -26,6 +26,9 @@ import { Siren, X, AlertTriangle, Brain } from 'lucide-react';
 import { EmergencySeverity } from './types';
 
 import { AuthModal } from './components/AuthModal';
+import { LoginPage } from './pages/auth/LoginPage';
+import { SignupPage } from './pages/auth/SignupPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const MainLayout: React.FC = () => {
   const { role, user, isAuthModalOpen, setAuthModalOpen } = useAuth();
@@ -75,32 +78,38 @@ const MainLayout: React.FC = () => {
         {/* Main Route Content */}
         <main className="flex-1 p-4 md:p-6 overflow-x-hidden min-h-[calc(100vh-65px)]">
           <Routes>
+            {/* Auth Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+
             {/* Index Route — role-aware */}
             <Route
               path="/"
               element={
-                role === 'admin'
-                  ? <AdminDashboard />
-                  : <UserDashboard onOpenSOS={() => setShowSOSModal(true)} onOpenQR={() => setShowQR(true)} />
+                <ProtectedRoute>
+                  {role === 'admin'
+                    ? <AdminDashboard />
+                    : <UserDashboard onOpenSOS={() => setShowSOSModal(true)} onOpenQR={() => setShowQR(true)} />}
+                </ProtectedRoute>
               }
             />
 
             {/* Admin Routes */}
-            <Route path="/admin/users" element={<UserManagement />} />
-            <Route path="/admin/health" element={<HealthMonitoring />} />
-            <Route path="/admin/hospitals" element={<HospitalManagement />} />
-            <Route path="/admin/emergencies" element={<EmergencyManagement />} />
-            <Route path="/admin/ai-config" element={<EmergencyManagement />} />
-            <Route path="/admin/reports" element={<ReportsPage />} />
-            <Route path="/admin/notifications" element={<EmergencyManagement />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><UserManagement /></ProtectedRoute>} />
+            <Route path="/admin/health" element={<ProtectedRoute requiredRole="admin"><HealthMonitoring /></ProtectedRoute>} />
+            <Route path="/admin/hospitals" element={<ProtectedRoute requiredRole="admin"><HospitalManagement /></ProtectedRoute>} />
+            <Route path="/admin/emergencies" element={<ProtectedRoute requiredRole="admin"><EmergencyManagement /></ProtectedRoute>} />
+            <Route path="/admin/ai-config" element={<ProtectedRoute requiredRole="admin"><EmergencyManagement /></ProtectedRoute>} />
+            <Route path="/admin/reports" element={<ProtectedRoute requiredRole="admin"><ReportsPage /></ProtectedRoute>} />
+            <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><EmergencyManagement /></ProtectedRoute>} />
+            <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><AdminSettings /></ProtectedRoute>} />
 
             {/* User Routes */}
-            <Route path="/user/ai-recommendations" element={<AIHealthRecommendations />} />
-            <Route path="/user/nearby-assistance" element={<NearbyAssistance />} />
-            <Route path="/user/contacts-sos" element={<EmergencyContactsPage />} />
-            <Route path="/user/voice-assistant" element={<AIChatbot isOpen={true} />} />
-            <Route path="/user/profile" element={<UserProfile onOpenQR={() => setShowQR(true)} />} />
+            <Route path="/user/ai-recommendations" element={<ProtectedRoute><AIHealthRecommendations /></ProtectedRoute>} />
+            <Route path="/user/nearby-assistance" element={<ProtectedRoute><NearbyAssistance /></ProtectedRoute>} />
+            <Route path="/user/contacts-sos" element={<ProtectedRoute><EmergencyContactsPage /></ProtectedRoute>} />
+            <Route path="/user/voice-assistant" element={<ProtectedRoute><AIChatbot isOpen={true} /></ProtectedRoute>} />
+            <Route path="/user/profile" element={<ProtectedRoute><UserProfile onOpenQR={() => setShowQR(true)} /></ProtectedRoute>} />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
@@ -108,6 +117,7 @@ const MainLayout: React.FC = () => {
         </main>
 
       </div>
+
 
       {/* Auth Modal */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setAuthModalOpen(false)} />

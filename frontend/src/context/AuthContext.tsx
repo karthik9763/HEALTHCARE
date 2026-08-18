@@ -47,11 +47,40 @@ const defaultNormalUser: User = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [role, setRole] = useState<Role>('admin');
-  const [user, setUser] = useState<User | null>(defaultAdminUser);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token') || 'demo_token');
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [user, setUser] = useState<User | null>(token ? defaultAdminUser : null);
+  const [role, setRole] = useState<Role>(user?.role || 'admin');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isAuthModalOpen, setAuthModalOpen] = useState<boolean>(false);
+
+  // Auto-verify token on boot
+  useEffect(() => {
+    const verifyToken = async () => {
+      const storedToken = localStorage.getItem('token');
+      if (!storedToken) {
+        setUser(null);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${storedToken}` }
+        });
+        if (res.ok) {
+          const userData = await res.json();
+          setUser(userData);
+          setRole(userData.role || 'user');
+          setToken(storedToken);
+        } else {
+          // Token invalid or expired
+          logout();
+        }
+      } catch (e) {
+        // Server unreachable fallback
+      }
+    };
+    verifyToken();
+  }, []);
 
   const switchRole = (newRole: Role) => {
     setRole(newRole);
@@ -88,23 +117,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAuthModalOpen(false);
         return { success: true };
       } else {
-        // Demo fallback for offline development
+        // Fallback for demo credentials
         if (username === 'admin' && (password === 'Admin@123' || password === 'admin123')) {
+          setToken('demo_admin_token');
+          localStorage.setItem('token', 'demo_admin_token');
           switchRole('admin');
           setAuthModalOpen(false);
           return { success: true };
         } else if (password === 'user123' || username === 'john@example.com') {
+          setToken('demo_user_token');
+          localStorage.setItem('token', 'demo_user_token');
           switchRole('user');
           setAuthModalOpen(false);
           return { success: true };
         }
-        return { success: false, message: data.message || 'Invalid credentials' };
+        return { success: false, message: data.message || 'Invalid email or password.' };
       }
     } catch (e: any) {
-      if (username === 'admin') switchRole('admin');
-      else switchRole('user');
-      setAuthModalOpen(false);
-      return { success: true };
+      if (username === 'admin') {
+        switchRole('admin');
+        return { success: true };
+      } else if (username === 'john@example.com') {
+        switchRole('user');
+        return { success: true };
+      }
+      return { success: false, message: 'Server connection failed.' };
     }
   };
 
@@ -126,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return { success: false, message: data.message || 'Registration failed' };
     } catch (e: any) {
-      return { success: false, message: 'Server error during registration' };
+      return { success: false, message: 'Server connection failed' };
     }
   };
 
@@ -153,4 +190,5 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
+
 

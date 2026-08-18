@@ -9,8 +9,9 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenSOS, unreadCount = 2 }) => {
-  const { user, role, switchRole, theme, toggleTheme, setAuthModalOpen } = useAuth();
+  const { user, role, logout, switchRole, theme, toggleTheme, setAuthModalOpen } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
+
 
 
   return (
@@ -120,31 +121,50 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSOS, unreadCount = 2 }) =>
             )}
           </div>
 
-          {/* User Profile Summary & Auth Trigger */}
+          {/* User Profile Summary & Auth Triggers */}
           <div className="hidden sm:flex items-center gap-2.5 pl-2 border-l border-slate-800">
             {user ? (
-              <>
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-md">
-                  {user?.name?.charAt(0) || 'U'}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center font-bold text-xs text-white shadow-md">
+                    {user?.name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="text-left text-xs leading-tight">
+                    <p className="font-semibold text-slate-200 max-w-[120px] truncate">{user?.name}</p>
+                    <p className="text-[10px] text-slate-400 capitalize">{role} Account</p>
+                  </div>
                 </div>
-                <div className="text-left text-xs leading-tight">
-                  <p className="font-semibold text-slate-200 max-w-[120px] truncate">{user?.name}</p>
-                  <p className="text-[11px] text-slate-400 capitalize">{role} Account</p>
-                </div>
-              </>
+                <button
+                  onClick={() => {
+                    logout();
+                    window.location.href = '/login';
+                  }}
+                  className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 text-xs font-bold px-3 py-1.5 rounded-xl transition-all"
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow-md transition-all"
-              >
-                Sign In
-              </button>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow-md transition-all"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold px-3.5 py-1.5 rounded-xl border border-slate-700 transition-all"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
-
 
         </div>
       </div>
     </header>
   );
 };
+
