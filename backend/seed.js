@@ -33,12 +33,12 @@ async function seedData() {
         });
 
         // 2. Users across 5 Risk Levels
-        const hashedAdminPass = await bcrypt.hash('admin123', 10);
+        const hashedAdminPass = await bcrypt.hash('Admin@123', 10);
         const hashedUserPass = await bcrypt.hash('user123', 10);
 
         // Admin User
         const admin = await User.create({
-            name: 'Dr. Sarah Connor (Chief Admin)',
+            name: 'System Admin',
             username: 'admin',
             email: 'admin@health.org',
             password: hashedAdminPass,
@@ -49,6 +49,121 @@ async function seedData() {
             healthScore: 98,
             riskLevel: 'Healthy'
         });
+
+        const Doctor = require('./models/Doctor');
+        const Hospital = require('./models/Hospital');
+        const Ambulance = require('./models/Ambulance');
+        const HealthRecord = require('./models/HealthRecord');
+
+        await Doctor.deleteMany({});
+        await Hospital.deleteMany({});
+        await Ambulance.deleteMany({});
+        await HealthRecord.deleteMany({});
+
+        // Hospitals
+        const hosp1 = await Hospital.create({
+            name: 'Central City Hospital',
+            address: '100 Medical Center Way, Downtown',
+            city: 'New York',
+            phone: '+1 (555) 911-4000',
+            emergencyBeds: 45,
+            availableICUBeds: 12,
+            latitude: 40.7128,
+            longitude: -74.0060
+        });
+
+        const hosp2 = await Hospital.create({
+            name: 'St. Jude Heart & Cardiac Institute',
+            address: '450 Health Avenue, Midtown',
+            city: 'New York',
+            phone: '+1 (555) 911-8000',
+            emergencyBeds: 30,
+            availableICUBeds: 8,
+            latitude: 40.7250,
+            longitude: -73.9980
+        });
+
+
+        // Doctors across Disease Specialties
+        await Doctor.create([
+            {
+                name: 'Dr. Michael Vance',
+                specialty: 'Cardiology',
+                qualification: 'MD, FACC',
+                experienceYears: 15,
+                hospitalId: hosp2._id,
+                hospitalName: 'St. Jude Heart & Cardiac Institute',
+                phone: '+1 (555) 345-6789',
+                email: 'vance@stjude.org',
+                availableHours: '09:00 AM - 04:00 PM',
+                consultationFee: 75,
+                rating: 4.9
+            },
+            {
+                name: 'Dr. Sarah Jenkins',
+                specialty: 'General Physician',
+                qualification: 'MBBS, MD (Internal Med)',
+                experienceYears: 12,
+                hospitalId: hosp1._id,
+                hospitalName: 'Central City Hospital',
+                phone: '+1 (555) 456-7890',
+                email: 'jenkins@centralhospital.org',
+                availableHours: '08:00 AM - 06:00 PM',
+                consultationFee: 50,
+                rating: 4.8
+            },
+            {
+                name: 'Dr. Aris Thorne',
+                specialty: 'Neurologist',
+                qualification: 'DM (Neurology), MD',
+                experienceYears: 18,
+                hospitalId: hosp1._id,
+                hospitalName: 'Central City Hospital',
+                phone: '+1 (555) 567-8901',
+                email: 'thorne@centralhospital.org',
+                availableHours: '10:00 AM - 05:00 PM',
+                consultationFee: 90,
+                rating: 4.95
+            },
+            {
+                name: 'Dr. Emily Watson',
+                specialty: 'Pulmonologist',
+                qualification: 'MD (Chest Diseases)',
+                experienceYears: 11,
+                hospitalId: hosp1._id,
+                hospitalName: 'Central City Hospital',
+                phone: '+1 (555) 678-9012',
+                email: 'watson@centralhospital.org',
+                availableHours: '09:00 AM - 03:00 PM',
+                consultationFee: 65,
+                rating: 4.7
+            }
+        ]);
+
+        // Ambulances
+        await Ambulance.create([
+            {
+                registrationNumber: 'AMB-101-NYC',
+                model: 'Ford Transit Advanced ICU',
+                capacity: 2,
+                status: 'available',
+                hospitalId: hosp1._id,
+                currentLocation: { latitude: 40.7145, longitude: -74.0070, address: 'Station 1 - Central' },
+                fuelLevel: 92,
+                speed: 0
+            },
+            {
+                registrationNumber: 'AMB-202-NYC',
+                model: 'Mercedes Sprinter Emergency',
+                capacity: 2,
+                status: 'available',
+                hospitalId: hosp2._id,
+                currentLocation: { latitude: 40.7200, longitude: -74.0010, address: 'Station 2 - Midtown' },
+                fuelLevel: 85,
+                speed: 0
+            }
+        ]);
+
 
         // User 1: Critical Risk Patient
         const john = await User.create({

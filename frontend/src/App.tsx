@@ -25,16 +25,34 @@ import { UserProfile } from './pages/user/UserProfile';
 import { Siren, X, AlertTriangle, Brain } from 'lucide-react';
 import { EmergencySeverity } from './types';
 
+import { AuthModal } from './components/AuthModal';
+
 const MainLayout: React.FC = () => {
-  const { role, user } = useAuth();
+  const { role, user, isAuthModalOpen, setAuthModalOpen } = useAuth();
   const [showQR, setShowQR] = useState(false);
   const [showSOSModal, setShowSOSModal] = useState(false);
   const [sosSuccess, setSosSuccess] = useState(false);
   const [selectedSeverity, setSelectedSeverity] = useState<EmergencySeverity>('Critical');
   const [symptoms, setSymptoms] = useState('');
 
-  const handleTriggerSOS = (e: React.FormEvent) => {
+  const handleTriggerSOS = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/sos/trigger', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          severity: selectedSeverity,
+          description: symptoms,
+          location: { latitude: 40.7128, longitude: -74.0060, address: 'Broadway & 4th St, NY' }
+        })
+      });
+    } catch (e) {}
+
     setSosSuccess(true);
     setTimeout(() => {
       setSosSuccess(false);
@@ -91,6 +109,9 @@ const MainLayout: React.FC = () => {
 
       </div>
 
+      {/* Auth Modal */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setAuthModalOpen(false)} />
+
       {/* Medical QR Modal */}
       {user && (
         <QRCodeModal
@@ -99,6 +120,7 @@ const MainLayout: React.FC = () => {
           onClose={() => setShowQR(false)}
         />
       )}
+
 
       {/* Emergency SOS Modal */}
       {showSOSModal && (

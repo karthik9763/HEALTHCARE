@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
-import { HeartPulse, ShieldAlert, CheckCircle, Activity, Thermometer, Droplet, Zap, AlertTriangle } from 'lucide-react';
+import { HeartPulse, ShieldAlert, CheckCircle, Activity, Thermometer, Droplet, Zap, AlertTriangle, UserCheck } from 'lucide-react';
+import { DoctorAppointmentModal } from '../../components/DoctorAppointmentModal';
 
 export const AIHealthRecommendations: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'severity' | 'metrics'>('severity');
   const [selectedSeverity, setSelectedSeverity] = useState<'Low' | 'Mild' | 'Moderate' | 'High' | 'Critical'>('Critical');
-  const [selectedMetric, setSelectedMetric] = useState<string>('High Heart Rate');
+  const [selectedMetric, setSelectedMetric] = useState<string>('High Blood Pressure');
+  const [isDoctorModalOpen, setDoctorModalOpen] = useState(false);
+  const [recommendedSpecialty, setRecommendedSpecialty] = useState('Cardiology');
+
+  const handleBookDoctor = (specialty = 'General Physician') => {
+    setRecommendedSpecialty(specialty);
+    setDoctorModalOpen(true);
+  };
+
 
   const severityAdvice = {
     Low: [
@@ -228,10 +237,33 @@ export const AIHealthRecommendations: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-white">Need a Specialist Consultation?</p>
+                <p className="text-[11px] text-slate-400">Book an instant appointment with a certified doctor according to your disease category.</p>
+              </div>
+              <button
+                onClick={() => handleBookDoctor(selectedMetric.includes('Heart') || selectedMetric.includes('Pressure') ? 'Cardiology' : 'General Physician')}
+                className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all"
+              >
+                <UserCheck className="w-4 h-4" />
+                <span>Book Doctor Appointment</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Doctor Appointment Modal */}
+      <DoctorAppointmentModal
+        isOpen={isDoctorModalOpen}
+        onClose={() => setDoctorModalOpen(false)}
+        recommendedSpecialty={recommendedSpecialty}
+      />
+
     </div>
   );
 };
+
+

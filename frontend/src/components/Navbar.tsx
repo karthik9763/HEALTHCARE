@@ -9,8 +9,9 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenSOS, unreadCount = 2 }) => {
-  const { user, role, switchRole, theme, toggleTheme } = useAuth();
+  const { user, role, switchRole, theme, toggleTheme, setAuthModalOpen } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
+
 
   return (
     <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
@@ -119,16 +120,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSOS, unreadCount = 2 }) =>
             )}
           </div>
 
-          {/* User Profile Summary */}
+          {/* User Profile Summary & Auth Trigger */}
           <div className="hidden sm:flex items-center gap-2.5 pl-2 border-l border-slate-800">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-md">
-              {user?.name?.charAt(0) || 'U'}
-            </div>
-            <div className="text-left text-xs leading-tight">
-              <p className="font-semibold text-slate-200 max-w-[120px] truncate">{user?.name}</p>
-              <p className="text-[11px] text-slate-400 capitalize">{role} Account</p>
-            </div>
+            {user ? (
+              <>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-md">
+                  {user?.name?.charAt(0) || 'U'}
+                </div>
+                <div className="text-left text-xs leading-tight">
+                  <p className="font-semibold text-slate-200 max-w-[120px] truncate">{user?.name}</p>
+                  <p className="text-[11px] text-slate-400 capitalize">{role} Account</p>
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow-md transition-all"
+              >
+                Sign In
+              </button>
+            )}
           </div>
+
 
         </div>
       </div>

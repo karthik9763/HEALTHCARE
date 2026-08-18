@@ -6,7 +6,10 @@ interface AuthContextType {
   role: Role;
   token: string | null;
   theme: 'dark' | 'light';
-  login: (username?: string, password?: string) => Promise<void>;
+  isAuthModalOpen: boolean;
+  setAuthModalOpen: (open: boolean) => void;
+  login: (username?: string, password?: string) => Promise<{ success: boolean; message?: string }>;
+  register: (data: any) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   switchRole: (newRole: Role) => void;
   toggleTheme: () => void;
@@ -15,7 +18,7 @@ interface AuthContextType {
 
 const defaultAdminUser: User = {
   _id: 'admin_123',
-  name: 'Dr. Sarah Connor',
+  name: 'System Admin',
   username: 'admin',
   email: 'admin@health.org',
   role: 'admin',
@@ -48,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(defaultAdminUser);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token') || 'demo_token');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [isAuthModalOpen, setAuthModalOpen] = useState<boolean>(false);
 
   const switchRole = (newRole: Role) => {
     setRole(newRole);
@@ -68,27 +72,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (username = 'admin', password = 'password123') => {
+  const login = async (username = 'admin', password = 'Admin@123') => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setToken(data.token);
         localStorage.setItem('token', data.token);
         setUser(data.user);
         setRole(data.user.role || 'user');
+        setAuthModalOpen(false);
+        return { success: true };
       } else {
-        // Fallback for offline demo mode
-        if (username === 'admin') switchRole('admin');
-        else switchRole('user');
+        // Demo fallback for offline development
+        if (username === 'admin' && (password === 'Admin@123' || password === 'admin123')) {
+          switchRole('admin');
+          setAuthModalOpen(false);
+          return { success: true };
+        } else if (password === 'user123' || username === 'john@example.com') {
+          switchRole('user');
+          setAuthModalOpen(false);
+          return { success: true };
+        }
+        return { success: false, message: data.message || 'Invalid credentials' };
       }
-    } catch (e) {
+    } catch (e: any) {
       if (username === 'admin') switchRole('admin');
       else switchRole('user');
+      setAuthModalOpen(false);
+      return { success: true };
+    }
+  };
+
+  const register = async (formData: any) => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setToken(data.token);
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        setRole(data.user.role || 'user');
+        setAuthModalOpen(false);
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Registration failed' };
+    } catch (e: any) {
+      return { success: false, message: 'Server error during registration' };
     }
   };
 
@@ -99,7 +137,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, token, theme, login, logout, switchRole, toggleTheme, setUser }}>
+    <AuthContext.Provider
+      value={{
+        user, role, token, theme, isAuthModalOpen, setAuthModalOpen,
+        login, register, logout, switchRole, toggleTheme, setUser
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -110,3 +153,4 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
+

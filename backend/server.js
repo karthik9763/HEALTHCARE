@@ -62,24 +62,35 @@ app.post('/api/seed', async (req, res) => {
 // Mount Routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const healthRoutes = require('./routes/healthRoutes');
+const alertRoutes = require('./routes/alertRoutes');
+const sosRoutes = require('./routes/sosRoutes');
 const ambulanceRoutes = require('./routes/ambulanceRoutes');
 const driverRoutes = require('./routes/driverRoutes');
 const hospitalRoutes = require('./routes/hospitalRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
 const emergencyRoutes = require('./routes/emergencyRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/health', healthRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/sos', sosRoutes);
 app.use('/api/ambulances', ambulanceRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/hospitals', hospitalRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/appointments', appointmentRoutes);
 app.use('/api/emergencies', emergencyRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // Legacy fallback routes for compatibility
 app.use('/api', authRoutes);
+
 
 // 4. Real-time Simulation Engine (Socket.IO)
 // Simulates live moving ambulance position and live patient vitals every 3 seconds

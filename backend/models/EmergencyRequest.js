@@ -22,24 +22,39 @@ const emergencyRequestSchema = new mongoose.Schema({
         enum: [
             'Monitoring Recovery',
             'SOS Activated',
+            'Booked',
+            'Accepted',
+            'On the Way',
+            'Reached',
+            'Completed',
             'Hospital Notified',
             'Family Contacted',
             'Resolved',
             'Auto-Cancelled'
         ],
-        default: 'Monitoring Recovery'
+        default: 'SOS Activated'
     },
-    inRecoveryPhase: { type: Boolean, default: true },
-    recoveryTimerSeconds: { type: Number, default: 300 }, // 5 mins
-    hospitalNotified: { type: Boolean, default: false },
-    familyNotified: { type: Boolean, default: false },
+    ambulanceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Ambulance' },
+    ambulanceReg: { type: String },
+    driverName: { type: String },
+    driverPhone: { type: String },
+    hospitalId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital' },
+    hospitalName: { type: String },
+    estimatedArrivalMins: { type: Number, default: 8 },
+    inRecoveryPhase: { type: Boolean, default: false },
+    recoveryTimerSeconds: { type: Number, default: 300 },
+    hospitalNotified: { type: Boolean, default: true },
+    familyNotified: { type: Boolean, default: true },
     vitalsAtTrigger: {
         heartRate: Number,
         bloodPressure: String,
         spO2: Number,
-        temperature: Number
+        temperature: Number,
+        bloodSugar: Number,
+        respiratoryRate: Number
     },
     resolvedAt: Date
 }, { timestamps: true });
 
 module.exports = mongoose.model('EmergencyRequest', emergencyRequestSchema);
+
