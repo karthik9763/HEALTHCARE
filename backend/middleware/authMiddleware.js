@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'health_secret_key_12345';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const protect = (req, res, next) => {
     let token;

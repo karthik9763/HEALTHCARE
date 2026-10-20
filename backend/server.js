@@ -1,11 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
-
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -23,12 +21,11 @@ app.use((req, res, next) => {
 });
 
 // 2. Database Connection Logic
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/healthtracker';
 const seedData = require('./seed');
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 2000 });
+        await mongoose.connect(process.env.MONGO_URI);
         console.log(`[DB] Connected to MongoDB.`);
         // Run seed on boot if database is empty
         await seedData();
@@ -131,10 +128,10 @@ io.on('connection', (socket) => {
 });
 
 // 5. Start Server
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, '127.0.0.1', () => {
-    console.log(`\n=================================================`);
-    console.log(`[SERVER] API RUNNING AT: http://127.0.0.1:${PORT}`);
-    console.log(`[SERVER] HEALTH PAGE: http://127.0.0.1:${PORT}/api/health-check`);
-    console.log(`=================================================\n`);
+app.listen = (...args) => server.listen(...args);
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

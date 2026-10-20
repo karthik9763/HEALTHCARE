@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
@@ -6,12 +7,10 @@ const Notification = require('./models/Notification');
 const AuditLog = require('./models/AuditLog');
 const AIConfig = require('./models/AIConfig');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/healthtracker';
-
 async function seedData() {
     try {
         if (mongoose.connection.readyState !== 1) {
-            await mongoose.connect(MONGO_URI);
+            await mongoose.connect(process.env.MONGO_URI);
         }
         console.log('Seeding Advanced AI Health System data...');
 
