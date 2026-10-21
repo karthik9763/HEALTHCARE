@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '../config/api';
 import { X, Calendar, Clock, Stethoscope, Building2, CheckCircle2, UserCheck } from 'lucide-react';
 
 interface Doctor {
@@ -45,7 +46,7 @@ export const DoctorAppointmentModal: React.FC<DoctorAppointmentModalProps> = ({
     const fetchDoctors = async () => {
       try {
         const url = selectedSpecialty !== 'All' ? `/api/doctors?specialty=${encodeURIComponent(selectedSpecialty)}` : '/api/doctors';
-        const res = await fetch(url);
+        const res = await fetch(getApiUrl(url));
         if (res.ok) {
           const data = await res.json();
           setDoctors(data);

@@ -25,6 +25,7 @@ export const Sidebar: React.FC = () => {
   const userNav = [
     { title: 'My Dashboard', path: '/', icon: LayoutDashboard },
     { title: 'AI Recommendations', path: '/user/ai-recommendations', icon: HeartPulse },
+    { title: 'Health & Device History', path: '/history', icon: FileText },
     { title: 'Nearby Assistance', path: '/user/nearby-assistance', icon: MapPin },
     { title: 'Emergency Contacts', path: '/user/contacts-sos', icon: PhoneCall },
     { title: 'AI Health Assistant', path: '/user/voice-assistant', icon: Bot },

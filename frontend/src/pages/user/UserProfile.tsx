@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { getApiUrl } from '../../config/api';
 import { User, QrCode, Lock, Mail, Phone, Heart, FileText, CheckCircle2, ShieldAlert, Edit3 } from 'lucide-react';
 
 interface UserProfileProps {
@@ -31,7 +32,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onOpenQR }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/users/profile/me', {
+      const res = await fetch(getApiUrl('/api/users/profile/me'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

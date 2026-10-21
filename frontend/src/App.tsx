@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { QRCodeModal } from './components/QRCodeModal';
 import { AIChatbot } from './components/AIChatbot';
+import { getApiUrl } from './config/api';
 
 // Admin Pages
 import { AdminDashboard } from './pages/admin/AdminDashboard';
@@ -21,6 +22,7 @@ import { AIHealthRecommendations } from './pages/user/AIHealthRecommendations';
 import { NearbyAssistance } from './pages/user/NearbyAssistance';
 import { EmergencyContactsPage } from './pages/user/EmergencyContactsPage';
 import { UserProfile } from './pages/user/UserProfile';
+import { HealthHistoryPage } from './pages/user/HealthHistoryPage';
 
 import { Siren, X, AlertTriangle, Brain } from 'lucide-react';
 import { EmergencySeverity } from './types';
@@ -42,7 +44,7 @@ const MainLayout: React.FC = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await fetch('/api/sos/trigger', {
+      await fetch(getApiUrl('/api/sos/trigger'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,6 +96,70 @@ const MainLayout: React.FC = () => {
               }
             />
 
+            {/* Direct Dashboard Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  {role === 'admin'
+                    ? <AdminDashboard />
+                    : <UserDashboard onOpenSOS={() => setShowSOSModal(true)} onOpenQR={() => setShowQR(true)} />}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/dashboard"
+              element={
+                <ProtectedRoute>
+                  <UserDashboard onOpenSOS={() => setShowSOSModal(true)} onOpenQR={() => setShowQR(true)} />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Profile Routes */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile onOpenQR={() => setShowQR(true)} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile onOpenQR={() => setShowQR(true)} />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* History Routes */}
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <HealthHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/history"
+              element={
+                <ProtectedRoute>
+                  <HealthHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Admin Routes */}
             <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><UserManagement /></ProtectedRoute>} />
             <Route path="/admin/health" element={<ProtectedRoute requiredRole="admin"><HealthMonitoring /></ProtectedRoute>} />
@@ -104,12 +170,14 @@ const MainLayout: React.FC = () => {
             <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><EmergencyManagement /></ProtectedRoute>} />
             <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><AdminSettings /></ProtectedRoute>} />
 
+            {/* General Reports Route */}
+            <Route path="/reports" element={<ProtectedRoute requiredRole="admin"><ReportsPage /></ProtectedRoute>} />
+
             {/* User Routes */}
             <Route path="/user/ai-recommendations" element={<ProtectedRoute><AIHealthRecommendations /></ProtectedRoute>} />
             <Route path="/user/nearby-assistance" element={<ProtectedRoute><NearbyAssistance /></ProtectedRoute>} />
             <Route path="/user/contacts-sos" element={<ProtectedRoute><EmergencyContactsPage /></ProtectedRoute>} />
             <Route path="/user/voice-assistant" element={<ProtectedRoute><AIChatbot isOpen={true} /></ProtectedRoute>} />
-            <Route path="/user/profile" element={<ProtectedRoute><UserProfile onOpenQR={() => setShowQR(true)} /></ProtectedRoute>} />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
@@ -117,7 +185,6 @@ const MainLayout: React.FC = () => {
         </main>
 
       </div>
-
 
       {/* Auth Modal */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setAuthModalOpen(false)} />
@@ -130,7 +197,6 @@ const MainLayout: React.FC = () => {
           onClose={() => setShowQR(false)}
         />
       )}
-
 
       {/* Emergency SOS Modal */}
       {showSOSModal && (
